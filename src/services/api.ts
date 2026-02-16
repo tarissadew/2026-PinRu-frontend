@@ -69,4 +69,9 @@ export const deleteUser = async (id: number) => {
     return await api.delete(`/Auth/users/${id}`);
 };
 
+export const createBooking = async (bookingData: any) => {
+    const response = await api.post('/Booking', bookingData);
+    return response.data;
+};
+
 export default api;

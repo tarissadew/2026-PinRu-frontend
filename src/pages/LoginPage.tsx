@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../services/api"; // Import fungsi API
+import { login } from "../services/api"; 
 
 export default function LoginPage() {
-    const [username, setUsername] = useState(""); // Ganti email ke username
+    const [username, setUsername] = useState(""); 
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
@@ -13,9 +13,12 @@ export default function LoginPage() {
             // Panggil API Backend
             const data = await login({ username, password });
             
-            // Simpan data asli dari database ke browser
+            // --- BAGIAN YANG DIPERBAIKI ---
+            // Simpan userId agar fitur booking tidak error "Sesi Habis"
+            localStorage.setItem("userId", data.userId); // Simpan ID User
             localStorage.setItem("userName", data.fullName);
             localStorage.setItem("userRole", data.role);
+            // ------------------------------
 
             // Arahkan berdasarkan role asli dari database
             if (data.role === "Admin") {
