@@ -45,4 +45,28 @@ export const updateBooking = async (id: number, data: any) => {
   return response.data;
 };
 
+export const getMyBookings = async (customerName: string) => {
+    const response = await api.get(`/Booking?customerName=${customerName}`);
+    return response.data;
+};
+
+export const login = async (credentials: any) => {
+    const response = await api.post('/Auth/login', credentials);
+    return response.data;
+};
+
+export const getAllCustomers = async () => {
+    const response = await api.get('/Auth/users?role=Mahasiswa'); 
+    return response.data;
+};
+
+export const getAllUsers = async (role: string) => {
+    const response = await api.get(`/Auth/users?role=${role}`);
+    return response.data;
+};
+
+export const deleteUser = async (id: number) => {
+    return await api.delete(`/Auth/users/${id}`);
+};
+
 export default api;
