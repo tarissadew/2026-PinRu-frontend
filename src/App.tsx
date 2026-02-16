@@ -7,6 +7,8 @@ import MasterCustomer from "./pages/MasterCustomer";
 import MasterRoom from "./pages/MasterRoom";
 import KelolaPinjaman from "./pages/KelolaPinjaman";
 import CustomerDashboard from "./pages/CustomerDashboard";
+import DaftarRuangan from "./pages/DaftarRuangan";
+import RiwayatPinjaman from "./pages/RiwayatPinjaman";
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
         <Route path="/admin/rooms" element={<MasterRoom />} />
         <Route path="/admin/bookings" element={<KelolaPinjaman />} />
         <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+        <Route path="/customer/rooms" element={<DaftarRuangan />} />
+        <Route path="/customer/history" element={<RiwayatPinjaman />} />
       </Routes>
     </Router>
   );

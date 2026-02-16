@@ -5,17 +5,18 @@ import {
   Users, 
   DoorOpen, 
   CalendarCheck, 
-  LogOut 
+  LogOut,
+  MapPin // Tambahkan icon untuk Daftar Ruangan
 } from "lucide-react";
 
 interface Props {
   children: React.ReactNode;
   role: "Admin" | "Customer";
 }
+
 export default function DashboardLayout({ children, role }: Props) {
   const location = useLocation();
   const navigate = useNavigate();
-
   const userName = localStorage.getItem("userName") || "Guest";
 
   const getActiveClass = (path: string) => {
@@ -24,37 +25,49 @@ export default function DashboardLayout({ children, role }: Props) {
       : "text-gray-400 hover:bg-gray-50 hover:text-gray-600";
   };
 
+  // Kita definisikan menuItems dengan logika filter role yang lebih fleksibel
   const menuItems = [
     { 
       name: "Dashboard", 
       icon: <LayoutDashboard size={20} />, 
       path: role === "Admin" ? "/admin/dashboard" : "/customer/dashboard", 
-      minRole: "Customer" 
+      showFor: ["Admin", "Customer"] 
     },
     { 
       name: "Master Customer", 
       icon: <Users size={20} />, 
       path: "/admin/customers", 
-      minRole: "Admin" 
+      showFor: ["Admin"] 
     },
     { 
       name: "Master Ruangan", 
       icon: <DoorOpen size={20} />, 
       path: "/admin/rooms", 
-      minRole: "Admin" 
+      showFor: ["Admin"] 
     },
     { 
       name: "Kelola Pinjaman", 
       icon: <CalendarCheck size={20} />, 
-      path: role === "Admin" ? "/admin/bookings" : "/customer/bookings", // Sesuaikan path customer jika ada
-      minRole: "Customer" 
+      path: "/admin/bookings", 
+      showFor: ["Admin"] 
+    },
+    { 
+      name: "Daftar Ruangan", 
+      icon: <MapPin size={20} />, 
+      path: "/customer/rooms", 
+      showFor: ["Customer"] 
+    },
+    { 
+      name: "Riwayat Pinjaman", 
+      icon: <CalendarCheck size={20} />, 
+      path: "/customer/history", 
+      showFor: ["Customer"]
     },
   ];
 
-  // 3. Gunakan fungsi logout yang benar-benar menghapus data
   const handleLogout = () => {
     localStorage.clear(); 
-    navigate("/"); // Gunakan navigate agar transisi lebih mulus dibanding window.location
+    navigate("/"); 
   };
 
   return (
@@ -69,7 +82,8 @@ export default function DashboardLayout({ children, role }: Props) {
         
         <nav className="flex-1 space-y-2">
           {menuItems.map((item) => {
-            if (item.minRole === "Admin" && role !== "Admin") return null;
+            // Logika Filter: Hanya tampilkan jika role saat ini ada di dalam list showFor
+            if (!item.showFor.includes(role)) return null;
 
             return (
               <Link
@@ -84,15 +98,15 @@ export default function DashboardLayout({ children, role }: Props) {
           })}
         </nav>
 
-        {/* Info User di Sidebar (Opsional tapi bagus untuk User Experience) */}
         <div className="mb-4 px-4 py-3 bg-gray-50 rounded-2xl border border-gray-100">
-            <p className="text-[10px] font-black text-gray-400 uppercase">Logged in as</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Logged in as</p>
             <p className="text-xs font-bold text-gray-700 truncate">{userName}</p>
+            <p className="text-[9px] text-[#00D084] font-black uppercase">{role}</p>
         </div>
 
         <div className="pt-6 border-t border-gray-50">
           <button 
-            onClick={handleLogout} // Gunakan fungsi handleLogout yang baru
+            onClick={handleLogout}
             className="w-full flex items-center gap-4 p-4 text-red-500 hover:bg-red-50 rounded-2xl transition-colors font-semibold text-sm"
           >
             <LogOut size={20} />
