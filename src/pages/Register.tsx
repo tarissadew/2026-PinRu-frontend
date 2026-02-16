@@ -1,24 +1,31 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../services/api"; 
+import api from "../services/api";
 
 export default function Register() {
     const [form, setForm] = useState({
         username: "",
+        email: "", 
         password: "",
         fullName: "",
-        role: "Mahasiswa" 
+        role: "Mahasiswa"
     });
     const navigate = useNavigate();
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!form.email.includes("@")) {
+            alert("Format email tidak valid! Harus mengandung @.");
+            return;
+        }
+
         try {
             await api.post("/Auth/register", form);
             alert("Registrasi berhasil! Silakan login.");
             navigate("/login");
         } catch (err: any) {
-            alert(err.response?.data?.message || "Gagal mendaftar. Username mungkin sudah ada.");
+            alert(err.response?.data?.message || "Gagal mendaftar. Username atau Email mungkin sudah digunakan.");
         }
     };
 
@@ -33,35 +40,48 @@ export default function Register() {
                     <p className="text-gray-400 text-sm">Buat akun untuk mulai meminjam ruangan</p>
                 </div>
 
-                <form onSubmit={handleRegister} className="space-y-5">
+                <form onSubmit={handleRegister} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Nama Lengkap</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Nama Lengkap</label>
                         <input
                             type="text" required
-                            className="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500 bg-gray-50/50"
+                            className="w-full px-5 py-3.5 rounded-2xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500 bg-gray-50/50 font-medium"
                             placeholder="Contoh: Tarissa Dewi"
                             onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                         />
                     </div>
+
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Username</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Email Resmi</label>
+                        <input
+                            type="email" required
+                            className="w-full px-5 py-3.5 rounded-2xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500 bg-gray-50/50 font-medium"
+                            placeholder="nama@univ.ac.id"
+                            onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Username</label>
                         <input
                             type="text" required
-                            className="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500 bg-gray-50/50"
-                            placeholder="Gunakan untuk login"
+                            className="w-full px-5 py-3.5 rounded-2xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500 bg-gray-50/50 font-medium"
+                            placeholder="Pilih ID untuk login"
                             onChange={(e) => setForm({ ...form, username: e.target.value })}
                         />
                     </div>
+
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Password</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Password</label>
                         <input
                             type="password" required
-                            className="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500 bg-gray-50/50"
+                            className="w-full px-5 py-3.5 rounded-2xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500 bg-gray-50/50 font-medium"
                             placeholder="••••••••"
                             onChange={(e) => setForm({ ...form, password: e.target.value })}
                         />
                     </div>
-                    <button type="submit" className="w-full bg-[#00D084] text-white py-4 rounded-3xl font-black text-lg hover:bg-[#00b372] transition-all shadow-lg shadow-green-100 mt-4">
+
+                    <button type="submit" className="w-full bg-[#00D084] text-white py-4 rounded-3xl font-black text-lg hover:bg-[#00b372] transition-all shadow-lg shadow-green-100 mt-2">
                         Daftar Sekarang
                     </button>
                 </form>

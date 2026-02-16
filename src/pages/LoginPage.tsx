@@ -1,33 +1,31 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../services/api"; 
+import { login } from "../services/api";
 
 export default function LoginPage() {
-    const [username, setUsername] = useState(""); 
+    const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // Panggil API Backend
-            const data = await login({ username, password });
-            
-            // --- BAGIAN YANG DIPERBAIKI ---
-            // Simpan userId agar fitur booking tidak error "Sesi Habis"
-            localStorage.setItem("userId", data.userId); // Simpan ID User
+            const data = await login({
+                username: identifier,
+                password: password
+            });
+
+            localStorage.setItem("userId", data.userId.toString());
             localStorage.setItem("userName", data.fullName);
             localStorage.setItem("userRole", data.role);
-            // ------------------------------
 
-            // Arahkan berdasarkan role asli dari database
             if (data.role === "Admin") {
                 navigate("/admin/dashboard");
             } else {
                 navigate("/customer/dashboard");
             }
         } catch (err: any) {
-            alert("Username atau Password salah!");
+            alert("Username/Email atau Password salah!");
         }
     };
 
@@ -39,17 +37,18 @@ export default function LoginPage() {
                         P
                     </div>
                     <h2 className="text-3xl font-black text-gray-800 tracking-tight">Selamat Datang</h2>
-                    <p className="text-gray-400 text-sm">Masuk ke akun PinRu kamu</p>
+                    <p className="text-gray-400 text-sm">Masuk dengan Username atau Email</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Username</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-2">Username / Email</label>
                         <input
                             type="text"
                             className="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500 transition-all bg-gray-50/50"
-                            placeholder="Ketik username..."
-                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="Ketik username atau email..."
+                            value={identifier}
+                            onChange={(e) => setIdentifier(e.target.value)}
                             required
                         />
                     </div>
@@ -59,6 +58,7 @@ export default function LoginPage() {
                             type="password"
                             className="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500 transition-all bg-gray-50/50"
                             placeholder="••••••••"
+                            value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
