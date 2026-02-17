@@ -46,7 +46,7 @@ export default function KelolaPinjaman() {
             <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-black text-gray-800 tracking-tight">Persetujuan Pinjaman</h1>
-                    <p className="text-gray-400 font-bold text-sm mt-1">Kelola permohonan akses ruangan dari mahasiswa.</p>
+                    <p className="text-gray-400 font-bold text-sm mt-1">Kelola permohonan akses ruangan dari mahasiswa</p>
                 </div>
 
                 <div className="relative w-full md:w-80">

@@ -117,7 +117,7 @@ export default function MasterRoom() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {rooms.map((room: any) => (
-                        <div key={room.id} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
+                        <div key={room.id} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group relative">
                             <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-[#00D084] mb-6 group-hover:bg-[#00D084] group-hover:text-white transition-all">
                                 <MapPin size={32} />
                             </div>
@@ -134,16 +134,8 @@ export default function MasterRoom() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex justify-between items-center border-t border-gray-50 pt-6">
-                                <div className="flex gap-2">
-                                    <span className="bg-green-50 text-green-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase border border-green-100">
-                                        Verified
-                                    </span>
-                                    <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase border border-blue-100">
-                                        Active
-                                    </span>
-                                </div>
-
+                            {/* Footer Section: Label Verified dan Active telah dihapus */}
+                            <div className="flex justify-end items-center border-t border-gray-50 pt-6">
                                 <div className="flex gap-1">
                                     <button
                                         onClick={() => handleEditClick(room)}
@@ -162,7 +154,7 @@ export default function MasterRoom() {
                                 </div>
                             </div>
 
-                            <p className="absolute bottom-2 right-8 text-[8px] text-gray-200 font-bold italic tracking-tighter">
+                            <p className="absolute bottom-2 left-8 text-[8px] text-gray-200 font-bold italic tracking-tighter">
                                 ROOM_ID: {room.id}
                             </p>
                         </div>
@@ -182,9 +174,7 @@ export default function MasterRoom() {
                         </button>
 
                         <div className="mb-10">
-                            <div className="w-14 h-14 bg-green-50 text-[#00D084] rounded-2xl flex items-center justify-center mb-4">
-                                <Plus size={28} strokeWidth={3} />
-                            </div>
+
                             <h2 className="text-3xl font-black text-gray-800 tracking-tight">
                                 {editingId ? "Edit Ruangan" : "Tambah Ruangan"}
                             </h2>
