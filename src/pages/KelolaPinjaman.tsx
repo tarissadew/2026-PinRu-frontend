@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import { getBookings, updateBookingStatus } from "../services/api";
-import { Check, X, CheckCircle2, Clock, Calendar } from "lucide-react";
+import { Check, X, CheckCircle2, Clock, Calendar, Search } from "lucide-react";
 
 export default function KelolaPinjaman() {
     const [bookings, setBookings] = useState([]);
+    const [searchTerm, setSearchTerm] = useState(""); 
     const [loading, setLoading] = useState(true);
 
     const fetchBookings = async () => {
@@ -21,12 +22,20 @@ export default function KelolaPinjaman() {
 
     useEffect(() => { fetchBookings(); }, []);
 
+    const filteredBookings = bookings.filter((booking: any) => {
+        const dateString = new Date(booking.startTime).toLocaleDateString();
+        return (
+            booking.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            booking.roomName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            dateString.includes(searchTerm)
+        );
+    });
+
     const handleAction = async (id: number, status: string) => {
         try {
-            // Memastikan status dikirim sebagai objek sesuai UpdateStatusDto di Backend
             await updateBookingStatus(id, status);
             alert(`Peminjaman berhasil di-${status}`);
-            fetchBookings(); // Refresh data setelah update
+            fetchBookings();
         } catch (err) {
             alert("Gagal mengubah status. Cek koneksi backend.");
         }
@@ -34,9 +43,24 @@ export default function KelolaPinjaman() {
 
     return (
         <DashboardLayout role="Admin">
-            <header className="mb-10">
-                <h1 className="text-3xl font-black text-gray-800 tracking-tight">Persetujuan Pinjaman</h1>
-                <p className="text-gray-400 font-bold text-sm mt-1">Kelola permohonan akses ruangan dari mahasiswa.</p>
+            <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-black text-gray-800 tracking-tight">Persetujuan Pinjaman</h1>
+                    <p className="text-gray-400 font-bold text-sm mt-1">Kelola permohonan akses ruangan dari mahasiswa.</p>
+                </div>
+
+                <div className="relative w-full md:w-80">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+                        <Search size={18} />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Cari peminjam, ruangan, atau tanggal..."
+                        className="w-full pl-12 pr-4 py-3 bg-white border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-[#00D084] font-bold text-sm shadow-sm transition-all"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
             </header>
 
             {loading ? (
@@ -53,12 +77,14 @@ export default function KelolaPinjaman() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {bookings.length === 0 ? (
+                            {filteredBookings.length === 0 ? (
                                 <tr>
-                                    <td colSpan={4} className="p-20 text-center text-gray-400 font-bold italic">Belum ada data pengajuan pinjaman.</td>
+                                    <td colSpan={4} className="p-20 text-center text-gray-400 font-bold italic">
+                                        {searchTerm ? `Hasil pencarian "${searchTerm}" tidak ditemukan.` : "Belum ada data pengajuan pinjaman."}
+                                    </td>
                                 </tr>
                             ) : (
-                                bookings.map((booking: any) => (
+                                filteredBookings.map((booking: any) => (
                                     <tr key={booking.id} className="hover:bg-gray-50/50 transition-colors group">
                                         <td className="p-6">
                                             <div className="flex items-center gap-3">
@@ -85,7 +111,6 @@ export default function KelolaPinjaman() {
                                         </td>
                                         <td className="p-6">
                                             <div className="flex justify-center gap-2">
-                                                {/* Tombol Approved: Sembunyikan jika status sudah Approved agar tidak mubazir */}
                                                 {booking.status !== 'Approved' && (
                                                     <button
                                                         onClick={() => handleAction(booking.id, 'Approved')}
@@ -96,7 +121,6 @@ export default function KelolaPinjaman() {
                                                     </button>
                                                 )}
 
-                                                {/* Tombol Rejected: Sembunyikan jika status sudah Rejected agar tidak mubazir */}
                                                 {booking.status !== 'Rejected' && (
                                                     <button
                                                         onClick={() => handleAction(booking.id, 'Rejected')}
@@ -106,12 +130,8 @@ export default function KelolaPinjaman() {
                                                         <X size={16} strokeWidth={3} />
                                                     </button>
                                                 )}
-
-                                                {/* Indikator Selesai (Opsional) */}
-                                                {booking.status === 'Pending' ? null : (
-                                                    <div className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <CheckCircle2 size={14} className="text-gray-300" />
-                                                    </div>
+                                                {booking.status !== 'Pending' && (
+                                                     <CheckCircle2 size={16} className="text-gray-200 mt-2" />
                                                 )}
                                             </div>
                                         </td>

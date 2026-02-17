@@ -1,32 +1,45 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import { getRooms, createRoom, deleteRoom, updateRoom } from "../services/api";
-import { Plus, Trash2, Edit, X } from "lucide-react";
+import {
+    Plus,
+    Trash2,
+    Edit,
+    X,
+    MapPin,
+    Users,
+    LayoutDashboard
+} from "lucide-react";
+
+interface Room {
+    id: number;
+    name: string;
+    capacity: number;
+    location: string;
+}
 
 export default function MasterRoom() {
-    const [rooms, setRooms] = useState([]);
+    const [rooms, setRooms] = useState<Room[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
-    
     const [editingId, setEditingId] = useState<number | null>(null);
     const [roomForm, setRoomForm] = useState({ name: "", capacity: 0, location: "" });
+
+    const fetchRooms = async () => {
+        setLoading(true);
+        try {
+            const data = await getRooms();
+            setRooms(data);
+        } catch (err) {
+            console.error("Gagal mengambil data:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         fetchRooms();
     }, []);
-
-    const fetchRooms = () => {
-        setLoading(true);
-        getRooms()
-            .then((data) => {
-                setRooms(data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error("Gagal mengambil data:", err);
-                setLoading(false);
-            });
-    };
 
     const handleAddClick = () => {
         setEditingId(null);
@@ -34,99 +47,124 @@ export default function MasterRoom() {
         setIsModalOpen(true);
     };
 
-    const handleEditClick = (room: any) => {
+    const handleEditClick = (room: Room) => {
         setEditingId(room.id);
-        setRoomForm({ 
-            name: room.name, 
-            capacity: room.capacity, 
-            location: room.location 
+        setRoomForm({
+            name: room.name,
+            capacity: room.capacity,
+            location: room.location
         });
         setIsModalOpen(true);
     };
 
     const handleDelete = async (id: number, name: string) => {
-    if (window.confirm(`Apakah Anda yakin ingin menghapus ruangan "${name}"?`)) {
-        try {
-            await deleteRoom(id); 
-            alert("Ruangan berhasil dihapus!");
-            fetchRooms(); 
-        } catch (err: any) {
-            console.error("Detail Error Hapus:", err.response?.data || err.message);
-            alert("Gagal menghapus. Cek terminal backend!");
+        if (window.confirm(`Hapus ruangan "${name}" secara permanen?`)) {
+            try {
+                await deleteRoom(id);
+                alert("Ruangan berhasil dihapus!");
+                fetchRooms();
+            } catch (err: any) {
+                alert("Gagal menghapus. Pastikan ruangan tidak sedang digunakan dalam transaksi.");
+            }
         }
-    }
-};
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             if (editingId) {
                 await updateRoom(editingId, roomForm);
-                alert("Ruangan berhasil diperbarui!");
+                alert("Data ruangan diperbarui!");
             } else {
                 await createRoom(roomForm);
-                alert("Ruangan berhasil ditambahkan!");
+                alert("Ruangan baru ditambahkan!");
             }
             setIsModalOpen(false);
-            fetchRooms(); 
+            fetchRooms();
         } catch (err) {
-            console.error(err);
-            alert("Gagal menyimpan data ke database.");
+            alert("Terjadi kesalahan saat menyimpan data.");
         }
     };
 
     return (
         <DashboardLayout role="Admin">
-            <header className="mb-8 flex justify-between items-center">
+            {/* Header Section */}
+            <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-800">Master Ruangan</h1>
-                    <p className="text-gray-500 text-sm">Kelola daftar ruangan yang tersedia untuk dipinjam.</p>
+                    <h1 className="text-3xl font-black text-gray-800 tracking-tighter">Master Ruangan</h1>
+                    <p className="text-gray-400 font-bold text-sm mt-1">Total {rooms.length} ruangan terdaftar di sistem.</p>
                 </div>
-                <button 
+                <button
                     onClick={handleAddClick}
-                    className="bg-[#00D084] text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-[#00b372] transition-all shadow-lg shadow-green-100"
+                    className="bg-[#00D084] text-white px-8 py-4 rounded-2xl font-black text-sm flex items-center gap-2 hover:bg-[#00b372] transition-all shadow-xl shadow-green-100"
                 >
-                    <Plus size={20} /> Tambah Ruangan
+                    <Plus size={20} strokeWidth={3} /> Tambah Ruangan
                 </button>
             </header>
 
             {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 w-full text-center">
+                <div className="flex flex-col items-center justify-center py-32 text-gray-400 animate-pulse font-black">
                     <div className="w-12 h-12 border-4 border-gray-100 border-t-[#00D084] rounded-full animate-spin mb-4"></div>
-                    <p className="text-gray-400 font-medium">Memuat data dari server...</p>
+                    Sinkronisasi Database...
                 </div>
             ) : rooms.length === 0 ? (
-                <div className="text-center py-20 bg-gray-50 rounded-4xl border-2 border-dashed border-gray-200">
-                    <p className="text-gray-400">Database kosong. Silakan tambah ruangan baru.</p>
+                <div className="text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-gray-100">
+                    <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-gray-200">
+                        <LayoutDashboard size={40} />
+                    </div>
+                    <p className="text-gray-400 font-bold">Belum ada data ruangan yang tersedia.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {rooms.map((room: any) => (
-                        <div key={room.id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
-                            <div className="w-full h-40 bg-gray-50 rounded-2xl mb-4 flex items-center justify-center text-gray-300 font-bold text-4xl group-hover:bg-green-50 group-hover:text-green-200 transition-colors">
-                                {room.name.charAt(0)}
+                        <div key={room.id} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
+                            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-[#00D084] mb-6 group-hover:bg-[#00D084] group-hover:text-white transition-all">
+                                <MapPin size={32} />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-800 mb-1">{room.name}</h3>
-                            <p className="text-sm text-gray-400 mb-4">{room.location || "Lantai Utama"}</p>
-                            <div className="flex justify-between items-center border-t border-gray-50 pt-4">
-                                <span className="text-xs font-bold uppercase text-green-600 bg-green-50 px-3 py-1 rounded-full">
-                                    {room.capacity} Orang
-                                </span>
+                            <div className="space-y-2 mb-8">
+                                <h3 className="text-2xl font-black text-gray-800 tracking-tight leading-tight group-hover:text-[#00D084] transition-colors">
+                                    {room.name}
+                                </h3>
+                                <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-1.5 text-gray-400 font-bold text-[10px] uppercase tracking-widest">
+                                        <Users size={14} className="group-hover:text-[#00D084] transition-colors" /> {room.capacity} Orang
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-gray-400 font-bold text-[10px] uppercase tracking-widest">
+                                        <MapPin size={14} className="group-hover:text-[#00D084] transition-colors" /> {room.location || "Lantai Utama"}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex justify-between items-center border-t border-gray-50 pt-6">
+                                <div className="flex gap-2">
+                                    <span className="bg-green-50 text-green-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase border border-green-100">
+                                        Verified
+                                    </span>
+                                    <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase border border-blue-100">
+                                        Active
+                                    </span>
+                                </div>
+
                                 <div className="flex gap-1">
-                                    <button 
+                                    <button
                                         onClick={() => handleEditClick(room)}
-                                        className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all"
+                                        className="p-2.5 text-gray-300 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all"
+                                        title="Edit Ruangan"
                                     >
-                                        <Edit size={18}/>
+                                        <Edit size={18} strokeWidth={2.5} />
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={() => handleDelete(room.id, room.name)}
-                                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                        className="p-2.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                        title="Hapus Ruangan"
                                     >
-                                        <Trash2 size={18}/>
+                                        <Trash2 size={18} strokeWidth={2.5} />
                                     </button>
                                 </div>
                             </div>
+
+                            <p className="absolute bottom-2 right-8 text-[8px] text-gray-200 font-bold italic tracking-tighter">
+                                ROOM_ID: {room.id}
+                            </p>
                         </div>
                     ))}
                 </div>
@@ -134,52 +172,59 @@ export default function MasterRoom() {
 
             {/* MODAL POP-UP */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white w-full max-w-md rounded-4xl p-8 shadow-2xl relative animate-in fade-in zoom-in duration-200">
-                        <button 
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50 p-4">
+                    <div className="bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-200 border border-gray-100">
+                        <button
                             onClick={() => setIsModalOpen(false)}
-                            className="absolute right-6 top-6 text-gray-400 hover:text-gray-600"
+                            className="absolute right-8 top-8 text-gray-300 hover:text-gray-600 p-2 hover:bg-gray-50 rounded-full transition-all"
                         >
-                            <X size={24} />
+                            <X size={20} strokeWidth={3} />
                         </button>
-                        
-                        <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                            {editingId ? "Edit Ruangan" : "Tambah Ruangan Baru"}
-                        </h2>
-                        
-                        <form onSubmit={handleSubmit} className="space-y-5">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Nama Ruangan</label>
-                                <input 
+
+                        <div className="mb-10">
+                            <div className="w-14 h-14 bg-green-50 text-[#00D084] rounded-2xl flex items-center justify-center mb-4">
+                                <Plus size={28} strokeWidth={3} />
+                            </div>
+                            <h2 className="text-3xl font-black text-gray-800 tracking-tight">
+                                {editingId ? "Edit Ruangan" : "Tambah Ruangan"}
+                            </h2>
+                            <p className="text-gray-400 text-sm font-bold mt-1 tracking-tight">Perbarui data aset ruangan PinRu.</p>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nama Ruangan</label>
+                                <input
                                     type="text" required value={roomForm.name}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500"
-                                    onChange={(e) => setRoomForm({...roomForm, name: e.target.value})}
+                                    placeholder="Contoh: Lab Komputer A"
+                                    className="w-full px-5 py-4 rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-[#00D084] bg-gray-50/50 font-bold text-gray-700 placeholder:text-gray-300 transition-all"
+                                    onChange={(e) => setRoomForm({ ...roomForm, name: e.target.value })}
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Kapasitas (Orang)</label>
-                                <input 
-                                    type="number" 
-                                    required 
-                                    value={roomForm.capacity || 0} 
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500"
-                                    onChange={(e) => {
-                                        const val = parseInt(e.target.value);
-                                        setRoomForm({...roomForm, capacity: isNaN(val) ? 0 : val}); // Validasi
-                                    }}
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Kapasitas (Orang)</label>
+                                <input
+                                    type="number" required value={roomForm.capacity || ""}
+                                    placeholder="0"
+                                    className="w-full px-5 py-4 rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-[#00D084] bg-gray-50/50 font-bold text-gray-700 placeholder:text-gray-300 transition-all"
+                                    onChange={(e) => setRoomForm({ ...roomForm, capacity: parseInt(e.target.value) || 0 })}
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Lokasi/Lantai</label>
-                                <input 
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Lokasi / Lantai</label>
+                                <input
                                     type="text" required value={roomForm.location}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-green-500"
-                                    onChange={(e) => setRoomForm({...roomForm, location: e.target.value})}
+                                    placeholder="Contoh: Gedung B - Lantai 3"
+                                    className="w-full px-5 py-4 rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-[#00D084] bg-gray-50/50 font-bold text-gray-700 placeholder:text-gray-300 transition-all"
+                                    onChange={(e) => setRoomForm({ ...roomForm, location: e.target.value })}
                                 />
                             </div>
-                            <button 
+
+                            <button
                                 type="submit"
-                                className="w-full bg-[#00D084] text-white py-4 rounded-2xl font-bold hover:bg-[#00b372] transition-all shadow-lg mt-4"
+                                className="w-full bg-[#00D084] text-white py-5 rounded-3xl font-black text-lg hover:bg-[#00b372] transition-all shadow-xl shadow-green-100 mt-4 flex items-center justify-center gap-3"
                             >
                                 {editingId ? "Perbarui Ruangan" : "Simpan Ruangan"}
                             </button>

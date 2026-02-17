@@ -6,7 +6,7 @@ import {
   DoorOpen, 
   CalendarCheck, 
   LogOut,
-  MapPin // Tambahkan icon untuk Daftar Ruangan
+  MapPin 
 } from "lucide-react";
 
 interface Props {
@@ -25,7 +25,6 @@ export default function DashboardLayout({ children, role }: Props) {
       : "text-gray-400 hover:bg-gray-50 hover:text-gray-600";
   };
 
-  // Kita definisikan menuItems dengan logika filter role yang lebih fleksibel
   const menuItems = [
     { 
       name: "Dashboard", 
@@ -82,7 +81,6 @@ export default function DashboardLayout({ children, role }: Props) {
         
         <nav className="flex-1 space-y-2">
           {menuItems.map((item) => {
-            // Logika Filter: Hanya tampilkan jika role saat ini ada di dalam list showFor
             if (!item.showFor.includes(role)) return null;
 
             return (

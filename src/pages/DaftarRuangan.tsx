@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import { getRooms, createBooking } from "../services/api";
-import { Users, MapPin, Search, Calendar, Clock } from "lucide-react"; // Semua ikon terpakai sekarang
+import { Users, MapPin, Search, Calendar, Clock } from "lucide-react"; 
 
 export default function DaftarRuangan() {
     const [rooms, setRooms] = useState<any[]>([]);
@@ -11,7 +11,7 @@ export default function DaftarRuangan() {
     const [formData, setFormData] = useState({ startTime: "", endTime: "" });
 
     const currentUserId = localStorage.getItem("userId");
-    const currentUserName = localStorage.getItem("userName"); // Terpakai di header modal
+    const currentUserName = localStorage.getItem("userName"); 
 
     useEffect(() => {
         getRooms().then(setRooms);
@@ -36,7 +36,7 @@ export default function DaftarRuangan() {
             roomId: selectedRoom.id,
             startTime: new Date(formData.startTime).toISOString(),
             endTime: new Date(formData.endTime).toISOString(),
-            remarks: `Booking via Eksplorasi oleh ${currentUserName}` // currentUserName terpakai di sini
+            remarks: `Booking via Eksplorasi oleh ${currentUserName}` 
         };
 
         try {
@@ -51,7 +51,7 @@ export default function DaftarRuangan() {
     return (
         <DashboardLayout role="Customer">
             <div className="flex justify-between items-center mb-10">
-                <h1 className="text-3xl font-black text-gray-800 tracking-tight">Eksplorasi Ruangan</h1>
+                <h1 className="text-3xl font-black text-gray-800 tracking-tight">Daftar Ruangan</h1>
                 <div className="relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                     <input 
@@ -92,7 +92,7 @@ export default function DaftarRuangan() {
                                 <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Pemohon: {currentUserName}</p>
                             </div>
                             <div className="w-10 h-10 bg-green-50 text-[#00D084] rounded-xl flex items-center justify-center">
-                                <Calendar size={20} /> {/* Ikon Calendar terpakai */}
+                                <Calendar size={20} /> 
                             </div>
                         </div>
                         
@@ -103,7 +103,7 @@ export default function DaftarRuangan() {
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <div>
                                 <label className="flex items-center gap-2 text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest">
-                                    <Clock size={12} /> Waktu Mulai {/* Ikon Clock terpakai */}
+                                    <Clock size={12} /> Waktu Mulai 
                                 </label>
                                 <input 
                                     type="datetime-local" required

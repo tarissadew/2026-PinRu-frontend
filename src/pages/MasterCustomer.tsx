@@ -5,12 +5,12 @@ import {
   MoreVertical,
   Mail,
   Trash2,
-  Search // Import ikon Search
+  Search 
 } from "lucide-react";
 
 export default function MasterCustomer() {
   const [users, setUsers] = useState<any[]>([]);
-  const [searchTerm, setSearchTerm] = useState(""); // State untuk menyimpan kata kunci pencarian
+  const [searchTerm, setSearchTerm] = useState(""); 
   const [loading, setLoading] = useState(true);
 
   const loadUsers = async () => {
@@ -29,7 +29,6 @@ export default function MasterCustomer() {
     loadUsers();
   }, []);
 
-  // --- TEKNIK IMPLEMENTASI PENCARIAN ---
   const filteredUsers = users.filter((user) =>
     user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.username.toLowerCase().includes(searchTerm.toLowerCase())
@@ -52,8 +51,8 @@ export default function MasterCustomer() {
       {/* Header & Search Bar */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">Database Pengguna</h1>
-          <p className="text-gray-500 text-sm font-medium">Data mahasiswa yang terdaftar di sistem PinRu.</p>
+          <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">Master Customer</h1>
+          <p className="text-gray-400 font-bold text-sm mt-1">Data mahasiswa yang terdaftar di sistem PinRu</p>
         </div>
 
         {/* Search Input menggantikan tombol Tambah User */}
